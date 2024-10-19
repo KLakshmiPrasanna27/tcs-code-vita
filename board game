@@ -1,0 +1,64 @@
+from collections import deque
+
+def rotate_90_clockwise(move):
+    return (move[1], -move[0])
+
+def rotate_90_counterclockwise(move):
+    return (-move[1], move[0])
+
+def rotate_180(move):
+    return (-move[0], -move[1])
+
+def bfs_min_moves(grid, start, end, move_rule):
+    M, N = len(grid), len(grid[0])
+    directions = [
+        move_rule,                          # forward
+        rotate_90_clockwise(move_rule),    # right
+        rotate_90_counterclockwise(move_rule),  # left
+        rotate_180(move_rule)               # backward
+    ]
+    
+    queue = deque([(start[0], start[1], 0)])  # (x, y, moves)
+    visited = set()
+    visited.add((start[0], start[1]))
+
+    while queue:
+        x, y, moves = queue.popleft()
+        
+        # Check if we reached the destination
+        if (x, y) == end:
+            return moves
+        
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < M and 0 <= ny < N and grid[nx][ny] == 0 and (nx, ny) not in visited:
+                visited.add((nx, ny))
+                queue.append((nx, ny, moves + 1))
+    
+    return -1  # If the destination is unreachable
+
+def main():
+    import sys
+    input = sys.stdin.read
+    data = input().splitlines()
+    
+    # Read grid dimensions
+    M, N = map(int, data[0].split())
+    
+    # Read the grid
+    grid = [list(map(int, data[i + 1].split())) for i in range(M)]
+    
+    # Read source and destination
+    source = tuple(map(int, data[M + 1].split()))
+    destination = tuple(map(int, data[M + 2].split()))
+    
+    # Read the move rule
+    move_rule = tuple(map(int, data[M + 3].split()))
+    
+    # Calculate the minimum moves
+    result = bfs_min_moves(grid, source, destination, move_rule)
+    
+    print(result)
+
+if __name__ == "__main__":
+    main()
